@@ -223,6 +223,21 @@ canvas {
     display: none !important;
   }
 }
+
+canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100%;
+  display: block;
+  margin: auto;
+}
+
+@media (max-width: 600px) {
+  canvas {
+    max-width: 100vw;
+    height: auto !important;
+  }
+}
   </style>
 </head>
 <body>
@@ -366,16 +381,20 @@ canvas {
 // Fungsi untuk menyesuaikan ukuran internal canvas
 function resizeCanvas2() {
   const rect = canvas2.getBoundingClientRect();
-  const w = rect.width || 300; // fallback 300px kalau belum kelihatan
+  const w = rect.width || 300;
+  const h = window.innerHeight * 0.6; // 60% dari tinggi layar
+
   canvas2.width = w;
-  canvas2.height = w; // tetap kotak
+  canvas2.height = h;
 }
 
 function resizeCanvas3() {
   const rect = canvas3.getBoundingClientRect();
   const w = rect.width || 300;
+  const h = window.innerHeight * 0.6;
+
   canvas3.width = w;
-  canvas3.height = w * (4 / 3); // rasio 3:4
+  canvas3.height = h;
 }
 resizeCanvas2();
 resizeCanvas3();
@@ -485,11 +504,12 @@ function showGame2() {
 
   document.getElementById('controlGame2').classList.remove('hidden');
 
+  resizeCanvas2(); // <- Tambah ini di sini
   requestAnimationFrame(() => {
-    resizeCanvas2();
     startAvoidTheBomb();
   });
 }
+
 
 
 
@@ -590,7 +610,9 @@ let isStarRunning = false;
 function startCatchTheStar() {
   document.getElementById('startCatchContainer').style.display = 'none';
   canvas3.classList.remove('hidden');
+
   resizeCanvas3();
+
   ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
   starPlayer.x = 140;
   stars = [];
