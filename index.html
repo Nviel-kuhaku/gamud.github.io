@@ -584,14 +584,19 @@ function endGame2() {
   cancelAnimationFrame(loopAnimationId);
   document.removeEventListener('keydown', movePlayer);
 
+  // Sembunyikan canvas & kontrol
   canvas2.classList.add('hidden');
   canvas2.style.display = 'none';
+
+  // ✅ Tambahkan baris ini untuk menyembunyikan semua kontrol sentuh
   document.getElementById('controlGame2').classList.add('hidden');
+  document.getElementById('controlGame3').classList.add('hidden'); // ← tambahkan ini
 
   showPage(page3);
   document.getElementById('startCatchContainer').style.display = 'block';
   canvas3.classList.add('hidden');
 }
+
 
 
   function resetGame2() {
