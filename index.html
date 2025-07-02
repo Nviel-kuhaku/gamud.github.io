@@ -302,9 +302,21 @@ html, body {
 </div>
 <canvas class="hidden" id="gameCanvas2" width="400" height="400"></canvas>
 <div id="controlGame2" class="touch-controls hidden">
-  <button onclick="movePlayerByTouch(-1)">◀️</button>
-  <button onclick="movePlayerByTouch(1)">▶️</button>
+  <button 
+    onmousedown="startHoldMoveGame2(-1)" 
+    onmouseup="stopHoldMoveGame2()" 
+    onmouseleave="stopHoldMoveGame2()" 
+    ontouchstart="startHoldMoveGame2(-1)" 
+    ontouchend="stopHoldMoveGame2()">◀️</button>
+
+  <button 
+    onmousedown="startHoldMoveGame2(1)" 
+    onmouseup="stopHoldMoveGame2()" 
+    onmouseleave="stopHoldMoveGame2()" 
+    ontouchstart="startHoldMoveGame2(1)" 
+    ontouchend="stopHoldMoveGame2()">▶️</button>
 </div>
+
 
 <div class="container hidden" id="pageA">
   <h1>HI ADARDERDOR</h1>
@@ -371,10 +383,21 @@ html, body {
   </div>
   <canvas id="gameCanvas3" width="300" height="400"></canvas>
 <div id="controlGame3" class="touch-controls hidden">
-  <button onclick="moveStarPlayerByTouch(-1)">◀️</button>
-  <button onclick="moveStarPlayerByTouch(1)">▶️</button>
+  <button 
+    onmousedown="startHoldMoveGame3(-1)" 
+    onmouseup="stopHoldMoveGame3()" 
+    onmouseleave="stopHoldMoveGame3()" 
+    ontouchstart="startHoldMoveGame3(-1)" 
+    ontouchend="stopHoldMoveGame3()">◀️</button>
+
+  <button 
+    onmousedown="startHoldMoveGame3(1)" 
+    onmouseup="stopHoldMoveGame3()" 
+    onmouseleave="stopHoldMoveGame3()" 
+    ontouchstart="startHoldMoveGame3(1)" 
+    ontouchend="stopHoldMoveGame3()">▶️</button>
 </div>
-</div>
+
 
 <!-- PAGE 4 -->
 <div class="container hidden" id="page4">
@@ -503,6 +526,9 @@ resizeCanvas3();
    // Game 2 - Avoid the Bomb
   const ctx2 = canvas2.getContext('2d');
   let player, bombs, isRunning2, bombSpawnInterval2, loopAnimationId;
+  let holdInterval2 = null;
+  let holdInterval3 = null;
+
 
 // Tambahkan gambar Mario dan Bowser
 const marioImg = new Image();
@@ -607,15 +633,24 @@ function endGame2() {
     isRunning2 = false;
   }
 
-function movePlayerByTouch(direction) {
+function startHoldMoveGame2(dir) {
   if (!isRunning2) return;
-  player.x += direction * 20;
-  player.x = Math.max(0, Math.min(player.x, canvas2.width - player.width));
+  movePlayerByTouch(dir); // langsung gerak sedikit
+  holdInterval2 = setInterval(() => {
+    movePlayerByTouch(dir);
+  }, 100);
+}
+
+function stopHoldMoveGame2() {
+  clearInterval(holdInterval2);
 }
 </script>
 <script>
   // Game 3 - Catch the Star
 let starSpawnInterval;
+let holdInterval2 = null;
+let holdInterval3 = null;
+
 // Gambar bucket & coin
 const bucketImage = new Image();
 bucketImage.src = 'bucket.png';
@@ -702,11 +737,18 @@ function endStarGame() {
   triggerConfetti();
 }
 
-function moveStarPlayerByTouch(direction) {
+function startHoldMoveGame3(dir) {
   if (!isStarRunning) return;
-  starPlayer.x += direction * 20;
-  starPlayer.x = Math.max(0, Math.min(starPlayer.x, canvas3.width - starPlayer.width));
+  moveStarPlayerByTouch(dir); // langsung gerak sedikit
+  holdInterval3 = setInterval(() => {
+    moveStarPlayerByTouch(dir);
+  }, 100);
 }
+
+function stopHoldMoveGame3() {
+  clearInterval(holdInterval3);
+}
+
 </script>
 <script>
 function restartFromGame() {
