@@ -195,6 +195,34 @@ canvas {
   }
 }
 
+.touch-controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 1rem;
+}
+
+.touch-controls button {
+  font-size: 2rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 10px;
+  border: none;
+  background-color: #f76c6c;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.touch-controls button:active {
+  background-color: #ff4c4c;
+  transform: scale(1.1);
+}
+
+@media (min-width: 768px) {
+  .touch-controls {
+    display: none !important;
+  }
+}
   </style>
 </head>
 <body>
@@ -238,6 +266,10 @@ canvas {
   <button class="button" onclick="showGame2()">KESUWENN NDANG LANJUT!</button>
 </div>
 <canvas class="hidden" id="gameCanvas2" width="400" height="400"></canvas>
+<div id="controlGame2" class="touch-controls hidden">
+  <button onclick="movePlayerByTouch(-1)">◀️</button>
+  <button onclick="movePlayerByTouch(1)">▶️</button>
+</div>
 
 <div class="container hidden" id="pageA">
   <h1>HI ADARDERDOR</h1>
@@ -303,6 +335,10 @@ canvas {
     <button class="button" onclick="startCatchTheStar()">ga mud aku, main o dewe</button>
   </div>
   <canvas id="gameCanvas3" width="300" height="400"></canvas>
+<div id="controlGame3" class="touch-controls hidden">
+  <button onclick="moveStarPlayerByTouch(-1)">◀️</button>
+  <button onclick="moveStarPlayerByTouch(1)">▶️</button>
+</div>
 </div>
 
 <!-- PAGE 4 -->
@@ -330,13 +366,16 @@ canvas {
 // Fungsi untuk menyesuaikan ukuran internal canvas
 function resizeCanvas2() {
   const rect = canvas2.getBoundingClientRect();
-  canvas2.width = rect.width;
-  canvas2.height = rect.width; // biar tetap kotak
+  const w = rect.width || 300; // fallback 300px kalau belum kelihatan
+  canvas2.width = w;
+  canvas2.height = w; // tetap kotak
 }
+
 function resizeCanvas3() {
   const rect = canvas3.getBoundingClientRect();
-  canvas3.width = rect.width;
-  canvas3.height = rect.width * (4 / 3); // rasio 3:4
+  const w = rect.width || 300;
+  canvas3.width = w;
+  canvas3.height = w * (4 / 3); // rasio 3:4
 }
 resizeCanvas2();
 resizeCanvas3();
@@ -444,6 +483,8 @@ function showGame2() {
   canvas2.classList.remove('hidden');
   canvas2.style.display = 'block';
 
+  document.getElementById('controlGame2').classList.remove('hidden');
+
   requestAnimationFrame(() => {
     resizeCanvas2();
     startAvoidTheBomb();
@@ -501,18 +542,21 @@ bombs.forEach(b => {
     loopAnimationId = requestAnimationFrame(loopGame2);
   }
 
-  function endGame2() {
-    isRunning2 = false;
-    clearInterval(bombSpawnInterval2);
-    cancelAnimationFrame(loopAnimationId);
-    document.removeEventListener('keydown', movePlayer);
-    canvas2.classList.add('hidden');
-    canvas2.style.display = 'none';
-    showPage(page3);
-     // Tampilkan tombol start game 3
+function endGame2() {
+  isRunning2 = false;
+  clearInterval(bombSpawnInterval2);
+  cancelAnimationFrame(loopAnimationId);
+  document.removeEventListener('keydown', movePlayer);
+
+  canvas2.classList.add('hidden');
+  canvas2.style.display = 'none';
+  document.getElementById('controlGame2').classList.add('hidden');
+
+  showPage(page3);
   document.getElementById('startCatchContainer').style.display = 'block';
   canvas3.classList.add('hidden');
-  }
+}
+
 
   function resetGame2() {
     clearInterval(bombSpawnInterval2);
@@ -521,6 +565,12 @@ bombs.forEach(b => {
     bombs = [];
     isRunning2 = false;
   }
+
+function movePlayerByTouch(direction) {
+  if (!isRunning2) return;
+  player.x += direction * 20;
+  player.x = Math.max(0, Math.min(player.x, canvas2.width - player.width));
+}
 </script>
 <script>
   // Game 3 - Catch the Star
@@ -607,6 +657,12 @@ function endStarGame() {
   canvas3.classList.add('hidden');
   showPage(page4);
   triggerConfetti();
+}
+
+function moveStarPlayerByTouch(direction) {
+  if (!isStarRunning) return;
+  starPlayer.x += direction * 20;
+  starPlayer.x = Math.max(0, Math.min(starPlayer.x, canvas3.width - starPlayer.width));
 }
 </script>
 <script>
