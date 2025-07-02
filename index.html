@@ -226,10 +226,11 @@ canvas {
 
 canvas {
   width: 100% !important;
-  height: auto !important;
-  max-width: 100%;
+  height: 100% !important;
+  max-width: 100vw;
+  max-height: 100vh;
   display: block;
-  margin: auto;
+  margin: 0 auto;
 }
 
 @media (max-width: 600px) {
@@ -237,6 +238,25 @@ canvas {
     max-width: 100vw;
     height: auto !important;
   }
+}
+
+#gameCanvas2,
+#gameCanvas3 {
+  aspect-ratio: 3 / 4; /* biar rasio 3:4 tetap */
+}
+
+#page3,
+#page2,
+#page4 {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+html, body {
+  height: 100%;
+  overflow-y: auto;
 }
   </style>
 </head>
@@ -380,19 +400,15 @@ canvas {
   const ctx3 = canvas3.getContext('2d');
 // Fungsi untuk menyesuaikan ukuran internal canvas
 function resizeCanvas2() {
-  const rect = canvas2.getBoundingClientRect();
-  const w = rect.width || 300;
-  const h = window.innerHeight * 0.6; // 60% dari tinggi layar
-
+  const w = Math.min(window.innerWidth, 400);
+  const h = Math.min(window.innerHeight * 0.8, 600);
   canvas2.width = w;
   canvas2.height = h;
 }
 
 function resizeCanvas3() {
-  const rect = canvas3.getBoundingClientRect();
-  const w = rect.width || 300;
-  const h = window.innerHeight * 0.6;
-
+  const w = Math.min(window.innerWidth, 400);
+  const h = Math.min(window.innerHeight * 0.8, 600);
   canvas3.width = w;
   canvas3.height = h;
 }
