@@ -237,8 +237,12 @@ canvas {
   </div>
   <button class="button" onclick="showGame2()">KESUWENN NDANG LANJUT!</button>
 </div>
-<canvas class="hidden" id="gameCanvas2" width="400" height="400"></canvas>
-
+<canvas class="hidden" id="gameCanvas2" style="width: 100%; height: auto;"></canvas>
+<!-- Kontrol untuk game Avoid the Bomb -->
+<div id="controls" style="display: none; justify-content: center; margin-top: 10px;">
+  <button class="button" id="leftButton">Kiri</button>
+  <button class="button" id="rightButton">Kanan</button>
+</div>
 <div class="container hidden" id="pageA">
   <h1>HI ADARDERDOR</h1>
   <img src="adara.jpeg" alt="Foto A" style="max-width: 100%; border-radius: 10px;">
@@ -302,7 +306,13 @@ canvas {
   <div id="startCatchContainer">
     <button class="button" onclick="startCatchTheStar()">ga mud aku, main o dewe</button>
   </div>
-  <canvas id="gameCanvas3" width="300" height="400"></canvas>
+  <canvas id="gameCanvas3" width="300" height="500"></canvas>
+
+<!-- Kontrol untuk game Catch the Star -->
+<div id="controlsCatch" style="display: none; justify-content: center; margin-top: 10px;">
+  <button class="button" id="leftButtonCatch">Kiri</button>
+  <button class="button" id="rightButtonCatch">Kanan</button>
+</div>
 </div>
 
 <!-- PAGE 4 -->
@@ -330,14 +340,16 @@ canvas {
 // Fungsi untuk menyesuaikan ukuran internal canvas
 function resizeCanvas2() {
   const rect = canvas2.getBoundingClientRect();
-  canvas2.width = rect.width;
-  canvas2.height = rect.width; // biar tetap kotak
+  canvas2.width = rect.width; // Lebar sesuai dengan lebar elemen
+  canvas2.height = window.innerHeight * 0.7; // Atur tinggi canvas menjadi 70% dari tinggi jendela
 }
+
 function resizeCanvas3() {
   const rect = canvas3.getBoundingClientRect();
-  canvas3.width = rect.width;
-  canvas3.height = rect.width * (4 / 3); // rasio 3:4
+  canvas3.width = rect.width; // Lebar sesuai dengan lebar elemen
+  canvas3.height = window.innerHeight * 0.6; // Atur tinggi canvas menjadi 60% dari tinggi jendela
 }
+
 resizeCanvas2();
 resizeCanvas3();
   const mainContent = document.getElementById('main-content');
@@ -444,6 +456,9 @@ function showGame2() {
   canvas2.classList.remove('hidden');
   canvas2.style.display = 'block';
 
+  // Tampilkan kontrol
+  document.getElementById('controls').style.display = 'flex';
+
   requestAnimationFrame(() => {
     resizeCanvas2();
     startAvoidTheBomb();
@@ -451,16 +466,16 @@ function showGame2() {
 }
 
 
+function startAvoidTheBomb() {
+  player = { x: canvas2.width / 2 - 25, y: canvas2.height - 70, width: 50, height: 60 }; // Ukuran untuk Mario
+  bombs = [];
+  isRunning2 = true;
 
-  function startAvoidTheBomb() {
-    player = { x: 180, y: 360, width: 50, height: 60 }; // Ukuran untuk Mario
-    bombs = [];
-    isRunning2 = true;
+  document.addEventListener('keydown', movePlayer);
+  bombSpawnInterval2 = setInterval(spawnBomb, 800);
+  loopGame2();
+}
 
-    document.addEventListener('keydown', movePlayer);
-    bombSpawnInterval2 = setInterval(spawnBomb, 800);
-    loopGame2();
-  }
 
   function movePlayer(e) {
     if (!isRunning2) return;
@@ -473,46 +488,80 @@ function showGame2() {
     bombs.push({ x: Math.random() * (canvas2.width - 20), y: -20 });
   }
 
-  function loopGame2() {
-    if (!isRunning2) return;
-    ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+let moveLeft = false;
+let moveRight = false;
 
-// Gambar player (Mario)
-ctx2.drawImage(marioImg, player.x, player.y, player.width, player.height);
-
-
-// Gambar bom (Bowser)
-bombs.forEach(b => {
-  b.y += 4;
-  ctx2.drawImage(bowserImg, b.x, b.y, 80, 80); // Ukuran bisa disesuaikan
+document.getElementById('leftButton').addEventListener('touchstart', (e) => {
+  e.preventDefault(); // Mencegah scroll
+  moveLeft = true; // Set moveLeft ke true
 });
 
-    // Cek tabrakan
-    for (let b of bombs) {
-      if (b.x < player.x + player.width && b.x + 20 > player.x && b.y < player.y + player.height && b.y + 20 > player.y) {
-        endGame2();
-        return;
-      }
-    }
+document.getElementById('rightButton').addEventListener('touchstart', (e) => {
+  e.preventDefault(); // Mencegah scroll
+  moveRight = true; // Set moveRight ke true
+});
 
-    // Filter bom yang sudah jatuh keluar
-    bombs = bombs.filter(b => b.y < canvas2.height);
+// Event listener untuk touchend
+document.getElementById('leftButton').addEventListener('touchend', () => {
+  moveLeft = false; // Set moveLeft ke false
+});
 
-    loopAnimationId = requestAnimationFrame(loopGame2);
+document.getElementById('rightButton').addEventListener('touchend', () => {
+  moveRight = false; // Set moveRight ke false
+});
+
+// Update posisi pemain dalam loop game
+function loopGame2() {
+  if (!isRunning2) return;
+  ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+
+  // Gambar player (Mario)
+  ctx2.drawImage(marioImg, player.x, player.y, player.width, player.height);
+
+  // Gerakkan pemain berdasarkan kontrol
+  if (moveLeft) {
+    player.x -= 5; // Gerakkan ke kiri
+  }
+  if (moveRight) {
+    player.x += 5; // Gerakkan ke kanan
   }
 
-  function endGame2() {
-    isRunning2 = false;
-    clearInterval(bombSpawnInterval2);
-    cancelAnimationFrame(loopAnimationId);
-    document.removeEventListener('keydown', movePlayer);
-    canvas2.classList.add('hidden');
-    canvas2.style.display = 'none';
-    showPage(page3);
-     // Tampilkan tombol start game 3
+  // Gambar bom (Bowser)
+  bombs.forEach(b => {
+    b.y += 4;
+    ctx2.drawImage(bowserImg, b.x, b.y, 80, 80); // Ukuran bisa disesuaikan
+  });
+
+  // Cek tabrakan
+  for (let b of bombs) {
+    if (b.x < player.x + player.width && b.x + 20 > player.x && b.y < player.y + player.height && b.y + 20 > player.y) {
+      endGame2();
+      return;
+    }
+  }
+
+  // Filter bom yang sudah jatuh keluar
+  bombs = bombs.filter(b => b.y < canvas2.height);
+
+  loopAnimationId = requestAnimationFrame(loopGame2);
+}
+
+function endGame2() {
+  isRunning2 = false;
+  clearInterval(bombSpawnInterval2);
+  cancelAnimationFrame(loopAnimationId);
+  document.removeEventListener('keydown', movePlayer);
+  canvas2.classList.add('hidden');
+  canvas2.style.display = 'none';
+
+  // Sembunyikan kontrol
+  document.getElementById('controls').style.display = 'none';
+
+  showPage(page3);
+  // Tampilkan tombol start game 3
   document.getElementById('startCatchContainer').style.display = 'block';
   canvas3.classList.add('hidden');
-  }
+}
 
   function resetGame2() {
     clearInterval(bombSpawnInterval2);
@@ -542,10 +591,14 @@ function startCatchTheStar() {
   canvas3.classList.remove('hidden');
   resizeCanvas3();
   ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
-  starPlayer.x = 140;
+  starPlayer = { x: canvas3.width / 2 - 35, y: canvas3.height - 80, width: 70, height: 70 }; // Ubah posisi y agar lebih tinggi
   stars = [];
   starScore = 0;
   isStarRunning = true;
+
+  // Tampilkan kontrol
+  document.getElementById('controlsCatch').style.display = 'flex';
+
   document.addEventListener('keydown', moveStarPlayer);
   starGameInterval = setInterval(updateStarGame, 30);
   starSpawnInterval = setInterval(spawnStar, 1000);
@@ -558,6 +611,28 @@ function moveStarPlayer(e) {
   starPlayer.x = Math.max(0, Math.min(starPlayer.x, canvas3.width - starPlayer.width));
 }
 
+let moveLeftCatch = false;
+let moveRightCatch = false;
+
+document.getElementById('leftButtonCatch').addEventListener('touchstart', (e) => {
+  e.preventDefault(); // Mencegah scroll
+  moveLeftCatch = true; // Set moveLeftCatch ke true
+});
+
+document.getElementById('rightButtonCatch').addEventListener('touchstart', (e) => {
+  e.preventDefault(); // Mencegah scroll
+  moveRightCatch = true; // Set moveRightCatch ke true
+});
+
+// Event listener untuk touchend
+document.getElementById('leftButtonCatch').addEventListener('touchend', () => {
+  moveLeftCatch = false; // Set moveLeftCatch ke false
+});
+
+document.getElementById('rightButtonCatch').addEventListener('touchend', () => {
+  moveRightCatch = false; // Set moveRightCatch ke false
+});
+
 function spawnStar() {
   if (!isStarRunning) return;
   stars.push({ x: Math.random() * (canvas3.width - 20), y: -20 });
@@ -567,6 +642,14 @@ function updateStarGame() {
   if (!isStarRunning) return;
 
   ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
+
+// Gerakkan pemain berdasarkan kontrol
+  if (moveLeftCatch) {
+    starPlayer.x -= 5; // Gerakkan ke kiri
+  }
+  if (moveRightCatch) {
+    starPlayer.x += 5; // Gerakkan ke kanan
+  }
 
   // Player
 ctx3.drawImage(bucketImage, starPlayer.x, starPlayer.y, starPlayer.width, starPlayer.height);
@@ -605,6 +688,10 @@ function endStarGame() {
   clearInterval(starSpawnInterval);
   document.removeEventListener('keydown', moveStarPlayer);
   canvas3.classList.add('hidden');
+
+  // Sembunyikan kontrol
+  document.getElementById('controlsCatch').style.display = 'none';
+
   showPage(page4);
   triggerConfetti();
 }
